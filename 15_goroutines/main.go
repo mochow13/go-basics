@@ -5,17 +5,29 @@ import (
 	"sync"
 )
 
-// syncs multiple goroutines
 var wg = sync.WaitGroup{}
+var counter = 0
 
 func main() {
-	var name = "Walter White"
-	wg.Add(1) // tell waitgroup we want to sync this goroutine
-	go func(n string) {
-		fmt.Println(n)
-		wg.Done() // this goroutine has done its execution
-	}(name)
-	name = "Willy Wonka"
-	wg.Wait() // no sleep needed, just wait for the goroutines
-	// we print Walter White, as we want
+	for i := 0; i < 10; i++ {
+		wg.Add(2)
+		go goCount()
+		go incCount()
+	}
+	wg.Wait()
+}
+
+/* counter will be printed in a very chaotic way and different
+in each run. This is because the goroutines are racing against each
+other to complete execution and there is no synchronization among them
+*/
+
+func goCount() {
+	fmt.Println("Count is now ", counter)
+	wg.Done()
+}
+
+func incCount() {
+	counter++
+	wg.Done()
 }
